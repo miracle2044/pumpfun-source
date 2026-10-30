@@ -80,10 +80,27 @@ jobs:
       - name: Fetch source-locked dependencies using the pinned SDK Cargo
         run: |
           export RUSTC="$HOME/.cache/pumpfun-reconstruction/toolchains/hybrid144/rust/bin/rustc"
+          export CARGO_HOME="$HOME/.cargo"
           export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
-          "$HOME/.cache/solana/v1.44/platform-tools/rust/bin/cargo" fetch --locked --target sbpf-solana-solana --manifest-path baseline/programs/pump/Cargo.toml
-          "$HOME/.cache/solana/v1.44/platform-tools/rust/bin/cargo" fetch --locked --target sbpf-solana-solana --manifest-path candidate/programs/pump/Cargo.toml
-          find "$HOME/.cargo/registry/cache" -name aead-0.5.2.crate -print
+          # Acquire the whole locked closure before the harness stages a new
+          # virtual workspace. Target-filtered fetch omitted build-needed crates.
+          "$HOME/.cache/solana/v1.44/platform-tools/rust/bin/cargo" fetch --locked --manifest-path baseline/programs/pump/Cargo.toml
+          "$HOME/.cache/solana/v1.44/platform-tools/rust/bin/cargo" fetch --locked --manifest-path candidate/programs/pump/Cargo.toml
+          python - <<'PY'
+          import hashlib, pathlib, tomllib
+          cache = pathlib.Path.home() / '.cargo/registry/cache'
+          for source in ('baseline', 'candidate'):
+              packages = tomllib.loads(pathlib.Path(source, 'programs/pump/Cargo.lock').read_text())['package']
+              count = 0
+              for package in packages:
+                  if not package.get('source', '').startswith('registry+'):
+                      continue
+                  archives = cache.glob('*/' + package['name'] + '-' + package['version'] + '.crate')
+                  if not any(hashlib.sha256(path.read_bytes()).hexdigest() == package['checksum'] for path in archives):
+                      raise SystemExit('missing or changed locked crate: ' + package['name'])
+                  count += 1
+              print(source, count, 'locked crate archives verified')
+          PY
       - name: Compile two fresh source trees and compare every window
         run: >-
           python -B tooling/reconstruction/harness/build_score_pair.py
