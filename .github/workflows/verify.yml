@@ -24,6 +24,11 @@ on:
         description: Optional reviewed Python proof path in the tooling checkout
         required: false
         default: ''
+      proof_host:
+        description: Standard hosted runner for the reviewed proof
+        type: choice
+        options: [ubuntu-24.04, macos-15]
+        default: ubuntu-24.04
 permissions:
   contents: read
 concurrency:
@@ -145,7 +150,7 @@ jobs:
           if-no-files-found: warn
   checks:
     if: github.repository == 'miracle2044/pumpfun-source' && (inputs.mode == 'checks' || inputs.tooling != '')
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.proof_host || 'ubuntu-24.04' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
