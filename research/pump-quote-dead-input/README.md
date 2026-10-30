@@ -11,7 +11,7 @@ and all 130 existing cases. This adds no new coverage and changes no maintained
 Rust, oracle, signature handling or captured bytes.
 
 `python -B research/pump-quote-dead-input/reproduce.py` compiles current Pump with
-the official authenticated v1.44 Mac SDK and pinned Linux SBPF libraries, then
+the authenticated official v1.44 SDK for its native host, then
 executes the actual CLI with no historical report present. All 130 original and
 candidate comparisons must agree. An unchanged captured different program is an
 explicit diagnostic negative and must produce differences and a nonzero exit.
@@ -23,3 +23,10 @@ The complete actual compiler receipts, ELF outputs and VM results are retained
 under `work/scoped-proof`. This proves the existing bounded quote workflow can
 run without a discarded input. It does not establish other quote routes,
 extensions, full corpus availability, whole-program equality or security status.
+
+The Linux proof authenticates the unmodified official x86_64 v1.44 archive
+(SHA256 `6719b889d60677a8a2fcf4c82f68441a1afe0ab093edd2efe9f84a67a808b3e9`)
+and the exact pinned SBPF target-library hashes, then uses the verified builder's
+existing native `--target sbpf-solana-solana` path. It does not impersonate the
+macOS target-library profile or substitute tool bytes. Both red/green runs use
+the same native Linux distribution; cross-host ELF identity is not claimed.

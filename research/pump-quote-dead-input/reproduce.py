@@ -37,16 +37,22 @@ shape = {name: hashlib.sha256(ast.dump(node, include_attributes=False).encode())
          for name, node in pieces.items()}
 (PROOF / 'unchanged-logic.json').write_text(json.dumps(shape, indent=2) + '\n')
 
+if sys.platform == 'linux':
+    from native_sdk import prepare
+    target_arguments = prepare(ROOT, SDK, PROOF)
+else:
+    libraries = ROOT / 'work/quote-target-libraries'
+    shutil.copytree(ROOT / 'reconstruction/toolchain/linux-v1.44-x86_64/rust/lib/rustlib/sbpf-solana-solana/lib', libraries)
+    (libraries / 'self-contained').mkdir(exist_ok=True)
+    target_arguments = ['--target', 'sbpf-solana-solana', '--target-library-profile', 'linux-v1.44-sbpf',
+                        '--target-library-directory', str(libraries)]
+
 assert run('fetch', [str(SDK / 'rust/bin/cargo'), 'fetch', '--locked',
                     '--manifest-path', str(ROOT / 'programs/pump/Cargo.toml')]) == 0
-libraries = ROOT / 'work/quote-target-libraries'
-shutil.copytree(ROOT / 'reconstruction/toolchain/linux-v1.44-x86_64/rust/lib/rustlib/sbpf-solana-solana/lib', libraries)
-(libraries / 'self-contained').mkdir(exist_ok=True)
 build = ROOT / 'work/quote-build'
 assert run('build', [sys.executable, '-B', 'scripts/pump_build_verified.py',
             '--sdk', str(SDK), '--source-directory', str(ROOT / 'programs/pump'),
-            '--target', 'sbpf-solana-solana', '--target-library-profile', 'linux-v1.44-sbpf',
-            '--target-library-directory', str(libraries), '--workspace-layout',
+            *target_arguments, '--workspace-layout',
             '--output', str(build)]) == 0
 for filename in ('build-attempt.json', 'build-comparison.json', 'build.log'):
     shutil.copyfile(build / filename, PROOF / filename)
