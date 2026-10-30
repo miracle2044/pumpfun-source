@@ -1,13 +1,17 @@
-name: Pump cold-build score regression
+name: Validate Pump cold-fetch fix
 on:
   workflow_dispatch:
     inputs:
       base:
         description: Full base commit SHA in this repository
         required: true
+        type: string
+        default: 68766903a69df17168971282f25683503ed7682e
       candidate:
         description: Full candidate commit SHA in this repository
         required: true
+        type: string
+        default: 68766903a69df17168971282f25683503ed7682e
 permissions:
   contents: read
 jobs:
