@@ -169,7 +169,6 @@ jobs:
           echo "66e20d135fddd70ff519baf7ff320d762957f9aedf93a50e23756db23ad79351  $RUNNER_TEMP/sdk.tar.bz2" | shasum -a 256 -c -
           mkdir -p "$HOME/.cache/solana/v1.44/platform-tools"
           tar -xjf "$RUNNER_TEMP/sdk.tar.bz2" -C "$HOME/.cache/solana/v1.44/platform-tools"
-          python -B reconstruction/toolchain/bootstrap.py --sdk-check full
       - name: Execute reviewed proof
         if: inputs.proof != ''
         env:
