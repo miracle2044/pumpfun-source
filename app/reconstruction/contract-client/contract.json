@@ -3,7 +3,7 @@
   "classification": "Complete request compilation owner, injected transport/catalog; no native server or compatibility claim",
   "anchors": {
     "manifestSha256": "9e0fc00719eb8c919dd4205d3c118eb48c4927e056c77e8343e26d6f7189bbb5",
-    "inventorySha256": "b3dca88778ef47f4d4d1054114a97d2930cb3dc691d0a3647c4d7085363e5439"
+    "inventoryCanonicalLfSha256": "1d268ae7f2eb0f61eaaffd222269bf29d9ce06e9946372861721b2f159d868e2"
   },
   "owner": {
     "id": 898661,

@@ -26,7 +26,8 @@ export async function recover(root = app) {
   const source = node => ({syntax:generate(node,{compact:true,comments:false}).code,
     evidence:owner.witness(node,'original complete request compiler')});
   return { schemaVersion:1, classification:'Complete request compilation owner, injected transport/catalog; no native server or compatibility claim',
-    anchors:corpus.anchors, owner:owner.provenance, occurrences:variants[0].origins,
+    anchors:{manifestSha256:corpus.anchors.manifestSha256,
+      inventoryCanonicalLfSha256:sha256(Buffer.from((await readFile(path.join(root,'recovered/modules.json'),'utf8')).replace(/\r\n/g,'\n'),'utf8'))}, owner:owner.provenance, occurrences:variants[0].origins,
     imports, implementation:source(assignment), fullFactory:source(owner.node),
     maintainedSha256:sha256(await readFile(path.join(root,'reconstruction/contract-client/client.mjs'))),
     creditedPrerequisite:{path:'reconstruction/contract-http-errors/decode.mjs',
