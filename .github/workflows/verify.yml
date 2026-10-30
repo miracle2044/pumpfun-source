@@ -25,6 +25,7 @@ jobs:
     env:
       CARGO_BUILD_JOBS: '2'
       PUMP_BUILD_SLOTS: '1'
+      CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
     steps:
       - name: Validate source revisions and host architecture
         env:
@@ -82,6 +83,7 @@ jobs:
           export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
           "$HOME/.cache/solana/v1.44/platform-tools/rust/bin/cargo" fetch --locked --target sbpf-solana-solana --manifest-path baseline/programs/pump/Cargo.toml
           "$HOME/.cache/solana/v1.44/platform-tools/rust/bin/cargo" fetch --locked --target sbpf-solana-solana --manifest-path candidate/programs/pump/Cargo.toml
+          find "$HOME/.cargo/registry/cache" -name aead-0.5.2.crate -print
       - name: Compile two fresh source trees and compare every window
         run: >-
           python -B tooling/reconstruction/harness/build_score_pair.py
